@@ -2,14 +2,17 @@
 
 Browser prototype for a flugelhorn rhythm game:
 
+- opens with a built-in starter library of scale drills
 - ships with a built-in library of practice MIDIs
 - lets you upload your own melody MIDI
+- can show either a scrolling pitch lane or a treble staff view
+- includes a wait mode that only advances when you hold the correct note for its full value
 - listens to your microphone and judges whether you are matching the chart
 - optionally plays backing audio or a stem while you perform
 
 ## Run it
 
-This needs `localhost` because browser microphone access is blocked on plain `file://` pages.
+Double-clicking [`index.html`](/Users/carsonraft/Desktop/FlugelHero/index.html) now loads an embedded starter library of scales, so the app is no longer empty when opened directly. For reliable microphone permissions across browsers, `localhost` is still the recommended way to run it.
 
 ```bash
 cd /Users/carsonraft/Desktop/FlugelHero
@@ -22,6 +25,11 @@ Then open [http://127.0.0.1:4173](http://127.0.0.1:4173).
 
 The built-in catalog lives in [`library/songs.json`](/Users/carsonraft/Desktop/FlugelHero/library/songs.json) and currently includes:
 
+- Concert Bb Scale
+- Concert F Scale
+- Concert Eb Scale
+- Concert Ab Scale
+- Chromatic Builder
 - Warm-Up Ladder
 - Ode to Joy
 - Amazing Grace
@@ -34,7 +42,10 @@ These are all generated as real MIDI files under [`library/midis`](/Users/carson
 ## How it works
 
 - MIDI parsing and gameplay logic live in [`app.js`](/Users/carsonraft/Desktop/FlugelHero/app.js).
+- The app also bundles starter scale charts directly in [`app.js`](/Users/carsonraft/Desktop/FlugelHero/app.js) so direct-open `file://` sessions still have something playable loaded.
 - The game converts the chosen melody track into a monophonic note highway.
+- `Pitch Lane` behaves like a rhythm-game highway, while `Music Staff` renders the same melody as notation.
+- `Wait for Correct Note` turns the chart into a practice mode: each note resets if the pitch drops before you hold the full duration.
 - Mic pitch detection uses a browser `AnalyserNode` plus an AMDF-style detector tuned for brass fundamentals.
 - Notes are judged by how much of each note duration matches the target pitch within the selected cents window.
 

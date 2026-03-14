@@ -8,74 +8,25 @@
 </head>
 <body>
   <div class="page-shell">
-    <header class="hero">
-      <div class="hero-copy-block">
-        <p class="eyebrow">Flugelhorn Rhythm Trainer</p>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Flugelhorn Practice</p>
         <h1>Flugel Hero</h1>
-        <p class="hero-copy">
-          Pick a built-in tune, turn on the mic, and play concert pitch into the lane. The app
-          listens for whether your flugelhorn matches the melody in real time.
-        </p>
-        <div class="hero-actions">
-          <button id="scrollLibraryBtn" class="accent-button" type="button">Choose a Built-In Song</button>
-          <button id="loadWarmupBtn" class="ghost-button" type="button">Load Warm-Up Ladder</button>
-        </div>
       </div>
-
-      <aside class="hero-guide">
-        <p class="panel-kicker">Three Steps</p>
-        <h2>Play in under a minute</h2>
-        <div class="guide-steps">
-          <article class="guide-step">
-            <span>1</span>
-            <div>
-              <h3>Choose a tune</h3>
-              <p>Start with the built-in library or upload your own melody MIDI.</p>
-            </div>
-          </article>
-          <article class="guide-step">
-            <span>2</span>
-            <div>
-              <h3>Arm the horn</h3>
-              <p>Enable the microphone so the game can track your pitch.</p>
-            </div>
-          </article>
-          <article class="guide-step">
-            <span>3</span>
-            <div>
-              <h3>Match the line</h3>
-              <p>Play the note when the bar reaches the bright hit line.</p>
-            </div>
-          </article>
-        </div>
-        <p class="guide-note">Built-in songs are public-domain melodies and custom brass studies.</p>
-      </aside>
+      <div class="app-header-actions">
+        <button id="loadWarmupBtn" class="ghost-button" type="button">Bb Scale</button>
+      </div>
     </header>
-
-    <section class="readiness-strip">
-      <article id="stepSong" class="readiness-card" data-state="current">
-        <p class="mini-label">1. Song</p>
-        <strong id="stepSongState">Choose a built-in tune</strong>
-      </article>
-      <article id="stepMic" class="readiness-card" data-state="idle">
-        <p class="mini-label">2. Microphone</p>
-        <strong id="stepMicState">Waiting for a song</strong>
-      </article>
-      <article id="stepPlay" class="readiness-card" data-state="idle">
-        <p class="mini-label">3. Play</p>
-        <strong id="stepPlayState">Need song + mic</strong>
-      </article>
-    </section>
 
     <main class="main-grid">
       <section class="left-rail">
         <section id="librarySection" class="panel library-panel">
           <div class="panel-heading">
             <div>
-              <p class="panel-kicker">Song Library</p>
-              <h2>Start Here</h2>
+              <p class="panel-kicker">Charts</p>
+              <h2>Rack</h2>
             </div>
-            <p id="libraryStatus" class="panel-caption">Loading built-in practice MIDIs...</p>
+            <p id="libraryStatus" class="panel-caption">Loading charts...</p>
           </div>
 
           <div id="libraryGrid" class="library-grid"></div>
@@ -90,20 +41,77 @@
             <small>Best results come from a single melody track rather than a piano reduction.</small>
           </label>
         </section>
+      </section>
+
+      <section class="stage-column">
+        <section class="stage-shell">
+          <div class="stage-topbar">
+            <div>
+              <p class="panel-kicker">Stage</p>
+              <h2 id="stageTitle">Load a chart to begin</h2>
+              <p id="sessionStatus" class="stage-caption">Bb scale loads by default.</p>
+            </div>
+
+            <div class="hud-grid">
+              <div class="hud-card">
+                <p class="mini-label">Target</p>
+                <h3 id="liveTargetNote">--</h3>
+                <span class="hud-subline">Concert pitch</span>
+              </div>
+              <div class="hud-card">
+                <p class="mini-label">You</p>
+                <h3 id="livePlayerNote">--</h3>
+                <span class="hud-subline">Detected note</span>
+              </div>
+              <div class="hud-card">
+                <p class="mini-label">Score</p>
+                <h3 id="scoreValue">0</h3>
+                <span id="streakValue" class="hud-subline">Streak 0</span>
+              </div>
+              <div class="hud-card">
+                <p class="mini-label">Accuracy</p>
+                <h3 id="accuracyValue">0%</h3>
+                <span id="notesValue" class="hud-subline">0 / 0 notes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="canvas-frame">
+            <canvas id="gameCanvas" width="1280" height="720"></canvas>
+            <div class="canvas-overlay">
+              <p id="overlayPrimary">The bright line is the entry point.</p>
+              <p id="overlaySecondary">Load a scale, enable the mic, then begin.</p>
+            </div>
+          </div>
+
+          <div class="stage-footer">
+            <div class="legend-row">
+              <span><i class="legend-chip legend-upcoming"></i> Upcoming note</span>
+              <span><i class="legend-chip legend-hit"></i> Hit</span>
+              <span><i class="legend-chip legend-miss"></i> Miss</span>
+              <span><i class="legend-chip legend-live"></i> Your horn</span>
+            </div>
+
+            <div class="footer-status">
+              <p id="songMeta">No chart loaded</p>
+              <p id="timeMeta">00:00 / 00:00</p>
+            </div>
+          </div>
+        </section>
 
         <section class="panel controls-panel">
           <div class="panel-heading">
             <div>
-              <p class="panel-kicker">Setup</p>
-              <h2>Session Controls</h2>
+              <p class="panel-kicker">Controls</p>
+              <h2>Session</h2>
             </div>
-            <p id="nextActionText" class="panel-caption">Choose a song to begin.</p>
+            <p id="nextActionText" class="panel-caption">Choose a chart to begin.</p>
           </div>
 
           <div class="selected-song-card">
-            <p class="selected-label">Selected song</p>
-            <h3 id="selectedSongTitle">No song selected</h3>
-            <p id="selectedSongDetail">Pick a built-in tune or upload a MIDI to create a playable chart.</p>
+            <p class="selected-label">Current</p>
+            <h3 id="selectedSongTitle">No chart loaded</h3>
+            <p id="selectedSongDetail">Choose a built-in scale, tune, or upload a melody MIDI to load a chart.</p>
             <div class="tag-row">
               <span id="selectedSourceTag" class="info-tag">Select a source</span>
               <span id="selectedDifficultyTag" class="info-tag">Difficulty</span>
@@ -113,6 +121,29 @@
           </div>
 
           <div class="control-grid">
+            <div class="mode-stack">
+              <div class="mode-block">
+                <span>Display</span>
+                <div class="segmented-control">
+                  <button id="viewLaneBtn" class="toggle-button is-selected" type="button" aria-pressed="true">Pitch Lane</button>
+                  <button id="viewStaffBtn" class="toggle-button" type="button" aria-pressed="false">Music Staff</button>
+                </div>
+              </div>
+
+              <div class="mode-block">
+                <span>Practice mode</span>
+                <div class="segmented-control">
+                  <button id="modeFlowBtn" class="toggle-button is-selected" type="button" aria-pressed="true">Flowing Run</button>
+                  <button id="modeStepBtn" class="toggle-button" type="button" aria-pressed="false">Wait for Correct Note</button>
+                </div>
+              </div>
+
+              <p class="mode-help">
+                Pitch Lane scrolls like Guitar Hero. Music Staff shows notation. Wait mode resets the note if the
+                pitch drops before you hold the full value.
+              </p>
+            </div>
+
             <label id="trackSelectWrap" class="field is-hidden">
               <span>Melody track</span>
               <select id="trackSelect" disabled>
@@ -170,61 +201,6 @@
             </div>
           </div>
         </section>
-      </section>
-
-      <section class="stage-shell">
-        <div class="stage-topbar">
-          <div>
-            <p class="panel-kicker">Live View</p>
-            <h2 id="stageTitle">Pick a song to light up the lane</h2>
-            <p id="sessionStatus" class="stage-caption">Built-in songs will appear below as soon as the library loads.</p>
-          </div>
-
-          <div class="hud-grid">
-            <div class="hud-card">
-              <p class="mini-label">Target</p>
-              <h3 id="liveTargetNote">--</h3>
-              <span class="hud-subline">Concert pitch</span>
-            </div>
-            <div class="hud-card">
-              <p class="mini-label">You</p>
-              <h3 id="livePlayerNote">--</h3>
-              <span class="hud-subline">Detected note</span>
-            </div>
-            <div class="hud-card">
-              <p class="mini-label">Score</p>
-              <h3 id="scoreValue">0</h3>
-              <span id="streakValue" class="hud-subline">Streak 0</span>
-            </div>
-            <div class="hud-card">
-              <p class="mini-label">Accuracy</p>
-              <h3 id="accuracyValue">0%</h3>
-              <span id="notesValue" class="hud-subline">0 / 0 notes</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="canvas-frame">
-          <canvas id="gameCanvas" width="1280" height="720"></canvas>
-          <div class="canvas-overlay">
-            <p id="overlayPrimary">The bright line is where you play.</p>
-            <p id="overlaySecondary">Choose a built-in song, enable the mic, then start a run.</p>
-          </div>
-        </div>
-
-        <div class="stage-footer">
-          <div class="legend-row">
-            <span><i class="legend-chip legend-upcoming"></i> Upcoming note</span>
-            <span><i class="legend-chip legend-hit"></i> Hit</span>
-            <span><i class="legend-chip legend-miss"></i> Miss</span>
-            <span><i class="legend-chip legend-live"></i> Your horn</span>
-          </div>
-
-          <div class="footer-status">
-            <p id="songMeta">No chart loaded</p>
-            <p id="timeMeta">00:00 / 00:00</p>
-          </div>
-        </div>
       </section>
     </main>
   </div>
