@@ -53,15 +53,32 @@
             </div>
 
             <div class="hud-grid">
-              <div class="hud-card">
+              <div class="hud-card target-card">
                 <p class="mini-label">Target</p>
                 <h3 id="liveTargetNote">--</h3>
-                <span class="hud-subline">Concert pitch</span>
+                <div class="hud-substack">
+                  <span id="liveTargetHz" class="hud-subline">-- Hz</span>
+                  <span id="targetPitchMeta" class="hud-subline">Concert pitch target</span>
+                </div>
+                <div class="target-tools">
+                  <div class="fingering-block">
+                    <span id="targetFingeringLabel" class="fingering-label">Bb horn: --</span>
+                    <div class="valve-row" aria-hidden="true">
+                      <span id="targetValve1" class="valve-pill">1</span>
+                      <span id="targetValve2" class="valve-pill">2</span>
+                      <span id="targetValve3" class="valve-pill">3</span>
+                    </div>
+                  </div>
+                  <button id="hearTargetBtn" class="ghost-button mini-ghost-button" type="button" disabled>Hear target</button>
+                </div>
               </div>
               <div class="hud-card">
                 <p class="mini-label">You</p>
                 <h3 id="livePlayerNote">--</h3>
-                <span class="hud-subline">Detected note</span>
+                <div class="hud-substack">
+                  <span id="livePlayerHz" class="hud-subline">-- Hz</span>
+                  <span class="hud-subline">Detected note</span>
+                </div>
               </div>
               <div class="hud-card">
                 <p class="mini-label">Score</p>
@@ -138,6 +155,32 @@
                 </div>
               </div>
 
+              <div class="mode-block">
+                <span>Session type</span>
+                <div class="segmented-control">
+                  <button id="sessionChartBtn" class="toggle-button is-selected" type="button" aria-pressed="true">Chart</button>
+                  <button id="sessionKeyBtn" class="toggle-button" type="button" aria-pressed="false">Key Lock</button>
+                </div>
+              </div>
+
+              <div id="keyLockBlock" class="mode-block is-hidden">
+                <span>Key lock</span>
+                <div class="field two-up compact-two-up">
+                  <label>
+                    <span>Concert key</span>
+                    <select id="keyRootSelect"></select>
+                  </label>
+                  <label>
+                    <span>Palette</span>
+                    <select id="keyPaletteSelect"></select>
+                  </label>
+                </div>
+                <div class="key-lock-actions">
+                  <button id="randomKeyBtn" class="ghost-button" type="button">Random key</button>
+                  <button id="resetKeyModeBtn" class="ghost-button" type="button">Reset meter</button>
+                </div>
+              </div>
+
               <p class="mode-help">
                 Pitch Lane scrolls like Guitar Hero. Music Staff shows notation. Wait mode resets the note if the
                 pitch drops before you hold the full value.
@@ -174,7 +217,7 @@
 
           <div class="action-stack">
             <button id="micButton" class="accent-button" type="button">Enable Microphone</button>
-            <div class="play-row">
+            <div id="playControlsRow" class="play-row">
               <button id="startButton" class="accent-button" type="button" disabled>Start Run</button>
               <button id="stopButton" class="ghost-button" type="button" disabled>Stop</button>
             </div>

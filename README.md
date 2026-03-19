@@ -7,6 +7,7 @@ Browser prototype for a flugelhorn rhythm game:
 - lets you upload your own melody MIDI
 - can show either a scrolling pitch lane or a treble staff view
 - includes a wait mode that only advances when you hold the correct note for its full value
+- includes a key-lock mode that checks free improvisation against a chosen palette
 - listens to your microphone and judges whether you are matching the chart
 - optionally plays backing audio or a stem while you perform
 
@@ -29,6 +30,21 @@ The built-in catalog lives in [`library/songs.json`](/Users/carsonraft/Desktop/F
 - Concert F Scale
 - Concert Eb Scale
 - Concert Ab Scale
+- Concert Bb Blues Scale
+- Concert F Blues Scale
+- Concert Eb Blues Scale
+- Concert Bb Major Pentatonic
+- Concert F Major Pentatonic
+- Concert C Minor Pentatonic
+- Concert G Minor Pentatonic
+- Concert Bb Bebop Dominant
+- Concert C Dorian
+- Concert Bb Mixolydian
+- ii-V Into Bb
+- Long Tone Centering
+- Thirds Ladder
+- Bb Arpeggio Slots
+- Clarke Cell One
 - Chromatic Builder
 - Warm-Up Ladder
 - Ode to Joy
@@ -46,7 +62,8 @@ These are all generated as real MIDI files under [`library/midis`](/Users/carson
 - The game converts the chosen melody track into a monophonic note highway.
 - `Pitch Lane` behaves like a rhythm-game highway, while `Music Staff` renders the same melody as notation.
 - `Wait for Correct Note` turns the chart into a practice mode: each note resets if the pitch drops before you hold the full duration.
-- Mic pitch detection uses a browser `AnalyserNode` plus an AMDF-style detector tuned for brass fundamentals.
+- `Key Lock` turns the app into a free-play checker: pick a concert key and palette, then only in-key notes count.
+- Mic pitch detection uses a browser `AnalyserNode`, a filtered brass-focused input path, and a YIN-style detector with harmonic correction.
 - Notes are judged by how much of each note duration matches the target pitch within the selected cents window.
 
 ## Regenerating the library

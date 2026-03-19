@@ -11,11 +11,19 @@ const elements = {
   viewStaffBtn: document.getElementById("viewStaffBtn"),
   modeFlowBtn: document.getElementById("modeFlowBtn"),
   modeStepBtn: document.getElementById("modeStepBtn"),
+  sessionChartBtn: document.getElementById("sessionChartBtn"),
+  sessionKeyBtn: document.getElementById("sessionKeyBtn"),
+  keyLockBlock: document.getElementById("keyLockBlock"),
+  keyRootSelect: document.getElementById("keyRootSelect"),
+  keyPaletteSelect: document.getElementById("keyPaletteSelect"),
+  randomKeyBtn: document.getElementById("randomKeyBtn"),
+  resetKeyModeBtn: document.getElementById("resetKeyModeBtn"),
   transposeSelect: document.getElementById("transposeSelect"),
   toleranceSelect: document.getElementById("toleranceSelect"),
   micButton: document.getElementById("micButton"),
   startButton: document.getElementById("startButton"),
   stopButton: document.getElementById("stopButton"),
+  playControlsRow: document.getElementById("playControlsRow"),
   nextActionText: document.getElementById("nextActionText"),
   selectedSongTitle: document.getElementById("selectedSongTitle"),
   selectedSongDetail: document.getElementById("selectedSongDetail"),
@@ -30,7 +38,15 @@ const elements = {
   stageTitle: document.getElementById("stageTitle"),
   sessionStatus: document.getElementById("sessionStatus"),
   liveTargetNote: document.getElementById("liveTargetNote"),
+  liveTargetHz: document.getElementById("liveTargetHz"),
+  targetPitchMeta: document.getElementById("targetPitchMeta"),
+  targetFingeringLabel: document.getElementById("targetFingeringLabel"),
+  targetValve1: document.getElementById("targetValve1"),
+  targetValve2: document.getElementById("targetValve2"),
+  targetValve3: document.getElementById("targetValve3"),
+  hearTargetBtn: document.getElementById("hearTargetBtn"),
   livePlayerNote: document.getElementById("livePlayerNote"),
+  livePlayerHz: document.getElementById("livePlayerHz"),
   scoreValue: document.getElementById("scoreValue"),
   streakValue: document.getElementById("streakValue"),
   accuracyValue: document.getElementById("accuracyValue"),
@@ -96,6 +112,99 @@ const NOTE_OFFSETS = {
   Bb: 10,
   B: 11,
 };
+const PITCH_DETECTION = {
+  minFrequency: 110,
+  maxFrequency: 1200,
+  rmsFloor: 0.01,
+  yinThreshold: 0.12,
+  periodicityFloor: 0.48,
+  octaveAnchorDistance: 2.5,
+  octaveImprovement: 3.5,
+  unstableJumpSemitones: 6,
+  unstableJumpClarity: 0.32,
+  analysisLowpassHz: 1800,
+  analysisHighpassHz: 110,
+};
+const BB_HORN_FINGERINGS = {
+  A3: [1, 2],
+  Bb3: [1],
+  B3: [2],
+  C4: [],
+  "C#4": [1, 2, 3],
+  Db4: [1, 2, 3],
+  D4: [1, 3],
+  "D#4": [2, 3],
+  Eb4: [2, 3],
+  E4: [1, 2],
+  F4: [1],
+  "F#4": [2],
+  Gb4: [2],
+  G4: [],
+  "G#4": [2, 3],
+  Ab4: [2, 3],
+  A4: [1, 2],
+  Bb4: [1],
+  B4: [2],
+  C5: [],
+  "C#5": [1, 2],
+  Db5: [1, 2],
+  D5: [1],
+  "D#5": [2],
+  Eb5: [2],
+  E5: [],
+  F5: [1],
+  "F#5": [2],
+  Gb5: [2],
+  G5: [],
+  "G#5": [2, 3],
+  Ab5: [2, 3],
+  A5: [1, 2],
+  Bb5: [1],
+  B5: [2],
+  C6: [],
+};
+const KEY_RENDER_RANGE = {
+  minMidi: 50,
+  maxMidi: 82,
+};
+const KEY_PALETTES = [
+  {
+    id: "majorPentatonic",
+    label: "Major Pentatonic",
+    shortLabel: "Maj Pent",
+    intervals: [0, 2, 4, 7, 9],
+  },
+  {
+    id: "minorPentatonic",
+    label: "Minor Pentatonic",
+    shortLabel: "Min Pent",
+    intervals: [0, 3, 5, 7, 10],
+  },
+  {
+    id: "mixolydian",
+    label: "Mixolydian",
+    shortLabel: "Mixolyd",
+    intervals: [0, 2, 4, 5, 7, 9, 10],
+  },
+  {
+    id: "dorian",
+    label: "Dorian",
+    shortLabel: "Dorian",
+    intervals: [0, 2, 3, 5, 7, 9, 10],
+  },
+  {
+    id: "bebopDominant",
+    label: "Bebop Dominant",
+    shortLabel: "Bebop",
+    intervals: [0, 2, 4, 5, 7, 9, 10, 11],
+  },
+  {
+    id: "blues",
+    label: "Blues",
+    shortLabel: "Blues",
+    intervals: [0, 3, 5, 6, 7, 10],
+  },
+];
 const EMBEDDED_LIBRARY_DEFINITIONS = [
   {
     id: "concert-bb-scale",
@@ -158,6 +267,231 @@ const EMBEDDED_LIBRARY_DEFINITIONS = [
     ],
   },
   {
+    id: "concert-bb-blues-scale",
+    title: "Concert Bb Blues Scale",
+    subtitle: "Blues vocabulary",
+    description: "A one-octave Bb blues scale up and down for improvisation language, bends, and cleaner slotting on the blue notes.",
+    difficulty: "Easy",
+    color: "ember",
+    bpm: 84,
+    sequence: [
+      { note: "Bb3", duration: 1 }, { note: "C4", duration: 1 }, { note: "Db4", duration: 1 }, { note: "D4", duration: 1 },
+      { note: "F4", duration: 1 }, { note: "G4", duration: 1 }, { note: "Ab4", duration: 1 }, { note: "Bb4", duration: 1.5 },
+      { note: "Ab4", duration: 1 }, { note: "G4", duration: 1 }, { note: "F4", duration: 1 }, { note: "D4", duration: 1 },
+      { note: "Db4", duration: 1 }, { note: "C4", duration: 1 }, { note: "Bb3", duration: 2 },
+    ],
+  },
+  {
+    id: "concert-f-blues-scale",
+    title: "Concert F Blues Scale",
+    subtitle: "Blues vocabulary",
+    description: "A concert F blues scale that keeps the shape compact while drilling the b3, b5, and b7 colors.",
+    difficulty: "Easy",
+    color: "cobalt",
+    bpm: 82,
+    sequence: [
+      { note: "F4", duration: 1 }, { note: "Ab4", duration: 1 }, { note: "Bb4", duration: 1 }, { note: "B4", duration: 1 },
+      { note: "C5", duration: 1 }, { note: "Eb5", duration: 1 }, { note: "F5", duration: 1.5 },
+      { note: "Eb5", duration: 1 }, { note: "C5", duration: 1 }, { note: "B4", duration: 1 }, { note: "Bb4", duration: 1 },
+      { note: "Ab4", duration: 1 }, { note: "F4", duration: 2 },
+    ],
+  },
+  {
+    id: "concert-eb-blues-scale",
+    title: "Concert Eb Blues Scale",
+    subtitle: "Blues vocabulary",
+    description: "A slightly darker flat-side blues scale for building comfort with Gb and the natural 3 against the tonic.",
+    difficulty: "Medium",
+    color: "emerald",
+    bpm: 80,
+    sequence: [
+      { note: "Eb4", duration: 1 }, { note: "Gb4", duration: 1 }, { note: "Ab4", duration: 1 }, { note: "A4", duration: 1 },
+      { note: "Bb4", duration: 1 }, { note: "Db5", duration: 1 }, { note: "Eb5", duration: 1.5 },
+      { note: "Db5", duration: 1 }, { note: "Bb4", duration: 1 }, { note: "A4", duration: 1 }, { note: "Ab4", duration: 1 },
+      { note: "Gb4", duration: 1 }, { note: "Eb4", duration: 2 },
+    ],
+  },
+  {
+    id: "concert-bb-major-pentatonic",
+    title: "Concert Bb Major Pentatonic",
+    subtitle: "Jazz pentatonic",
+    description: "A brass-friendly pentatonic pocket for simple melodic shapes and cleaner jazz vocabulary.",
+    difficulty: "Easy",
+    color: "sunrise",
+    bpm: 86,
+    sequence: [
+      { note: "Bb3", duration: 1 }, { note: "C4", duration: 1 }, { note: "D4", duration: 1 }, { note: "F4", duration: 1 },
+      { note: "G4", duration: 1 }, { note: "Bb4", duration: 1.5 }, { note: "G4", duration: 1 }, { note: "F4", duration: 1 },
+      { note: "D4", duration: 1 }, { note: "C4", duration: 1 }, { note: "Bb3", duration: 2 },
+    ],
+  },
+  {
+    id: "concert-f-major-pentatonic",
+    title: "Concert F Major Pentatonic",
+    subtitle: "Jazz pentatonic",
+    description: "An easy major pentatonic in a bright key that keeps the line open and lyrical.",
+    difficulty: "Easy",
+    color: "cobalt",
+    bpm: 84,
+    sequence: [
+      { note: "F4", duration: 1 }, { note: "G4", duration: 1 }, { note: "A4", duration: 1 }, { note: "C5", duration: 1 },
+      { note: "D5", duration: 1 }, { note: "F5", duration: 1.5 }, { note: "D5", duration: 1 }, { note: "C5", duration: 1 },
+      { note: "A4", duration: 1 }, { note: "G4", duration: 1 }, { note: "F4", duration: 2 },
+    ],
+  },
+  {
+    id: "concert-c-minor-pentatonic",
+    title: "Concert C Minor Pentatonic",
+    subtitle: "Jazz pentatonic",
+    description: "A flexible minor pentatonic shape for simple jazz and soul language without too many accidentals.",
+    difficulty: "Medium",
+    color: "violet",
+    bpm: 82,
+    sequence: [
+      { note: "C4", duration: 1 }, { note: "Eb4", duration: 1 }, { note: "F4", duration: 1 }, { note: "G4", duration: 1 },
+      { note: "Bb4", duration: 1 }, { note: "C5", duration: 1.5 }, { note: "Bb4", duration: 1 }, { note: "G4", duration: 1 },
+      { note: "F4", duration: 1 }, { note: "Eb4", duration: 1 }, { note: "C4", duration: 2 },
+    ],
+  },
+  {
+    id: "concert-g-minor-pentatonic",
+    title: "Concert G Minor Pentatonic",
+    subtitle: "Jazz pentatonic",
+    description: "A darker minor pentatonic that sits well on horn and starts to feel more like improvising than drilling.",
+    difficulty: "Medium",
+    color: "emerald",
+    bpm: 80,
+    sequence: [
+      { note: "G3", duration: 1 }, { note: "Bb3", duration: 1 }, { note: "C4", duration: 1 }, { note: "D4", duration: 1 },
+      { note: "F4", duration: 1 }, { note: "G4", duration: 1.5 }, { note: "F4", duration: 1 }, { note: "D4", duration: 1 },
+      { note: "C4", duration: 1 }, { note: "Bb3", duration: 1 }, { note: "G3", duration: 2 },
+    ],
+  },
+  {
+    id: "concert-bb-bebop-dominant",
+    title: "Concert Bb Bebop Dominant",
+    subtitle: "Jazz vocabulary",
+    description: "A dominant bebop drill with the major seventh passing tone for more idiomatic jazz lines.",
+    difficulty: "Medium",
+    color: "ember",
+    bpm: 88,
+    sequence: [
+      { note: "Bb3", duration: 0.85 }, { note: "C4", duration: 0.85 }, { note: "D4", duration: 0.85 }, { note: "Eb4", duration: 0.85 },
+      { note: "F4", duration: 0.85 }, { note: "G4", duration: 0.85 }, { note: "Ab4", duration: 0.85 }, { note: "A4", duration: 0.85 },
+      { note: "Bb4", duration: 1.25 }, { note: "A4", duration: 0.85 }, { note: "Ab4", duration: 0.85 }, { note: "G4", duration: 0.85 },
+      { note: "F4", duration: 0.85 }, { note: "Eb4", duration: 0.85 }, { note: "D4", duration: 0.85 }, { note: "C4", duration: 0.85 },
+      { note: "Bb3", duration: 1.75 },
+    ],
+  },
+  {
+    id: "concert-c-dorian",
+    title: "Concert C Dorian",
+    subtitle: "Mode drill",
+    description: "A modal minor scale with the natural 6 for cleaner dorian language and ii-mode comfort.",
+    difficulty: "Medium",
+    color: "cobalt",
+    bpm: 84,
+    sequence: [
+      { note: "C4", duration: 1 }, { note: "D4", duration: 1 }, { note: "Eb4", duration: 1 }, { note: "F4", duration: 1 },
+      { note: "G4", duration: 1 }, { note: "A4", duration: 1 }, { note: "Bb4", duration: 1 }, { note: "C5", duration: 1.5 },
+      { note: "Bb4", duration: 1 }, { note: "A4", duration: 1 }, { note: "G4", duration: 1 }, { note: "F4", duration: 1 },
+      { note: "Eb4", duration: 1 }, { note: "D4", duration: 1 }, { note: "C4", duration: 2 },
+    ],
+  },
+  {
+    id: "concert-bb-mixolydian",
+    title: "Concert Bb Mixolydian",
+    subtitle: "Mode drill",
+    description: "A dominant-mode scale for blues heads, V7 language, and cleaner control of the flat 7.",
+    difficulty: "Medium",
+    color: "sunrise",
+    bpm: 86,
+    sequence: [
+      { note: "Bb3", duration: 1 }, { note: "C4", duration: 1 }, { note: "D4", duration: 1 }, { note: "Eb4", duration: 1 },
+      { note: "F4", duration: 1 }, { note: "G4", duration: 1 }, { note: "Ab4", duration: 1 }, { note: "Bb4", duration: 1.5 },
+      { note: "Ab4", duration: 1 }, { note: "G4", duration: 1 }, { note: "F4", duration: 1 }, { note: "Eb4", duration: 1 },
+      { note: "D4", duration: 1 }, { note: "C4", duration: 1 }, { note: "Bb3", duration: 2 },
+    ],
+  },
+  {
+    id: "ii-v-into-bb",
+    title: "ii-V Into Bb",
+    subtitle: "Jazz cell",
+    description: "A short ii-V-I drill in concert Bb that moves through chord tones and lands on a clear tonic resolution.",
+    difficulty: "Medium",
+    color: "ember",
+    bpm: 90,
+    sequence: [
+      { note: "C4", duration: 1 }, { note: "Eb4", duration: 1 }, { note: "G4", duration: 1 }, { note: "Bb4", duration: 1 },
+      { note: "A4", duration: 0.85 }, { note: "G4", duration: 0.85 }, { note: "F4", duration: 0.85 }, { note: "Eb4", duration: 0.85 },
+      { note: "D4", duration: 1 }, { note: "F4", duration: 1 }, { note: "Bb4", duration: 1.5 }, { note: "A4", duration: 1 },
+      { note: "F4", duration: 1 }, { note: "D4", duration: 1 }, { note: "Bb3", duration: 2 },
+    ],
+  },
+  {
+    id: "long-tone-centering",
+    title: "Long Tone Centering",
+    subtitle: "Practice drill",
+    description: "Longer target notes on core concert pitches so you can work on center, air, and steady slotting.",
+    difficulty: "Easy",
+    color: "sunrise",
+    bpm: 72,
+    sequence: [
+      { note: "Bb3", duration: 2.5 }, { note: "D4", duration: 2.5 }, { note: "F4", duration: 2.5 },
+      { note: "Bb4", duration: 3.5 }, { note: "F4", duration: 2.5 }, { note: "D4", duration: 2.5 },
+      { note: "Bb3", duration: 3.5 },
+    ],
+  },
+  {
+    id: "thirds-ladder",
+    title: "Thirds Ladder",
+    subtitle: "Practice drill",
+    description: "Scale motion in thirds for slotting and interval accuracy without pushing the range too far too fast.",
+    difficulty: "Medium",
+    color: "emerald",
+    bpm: 80,
+    sequence: [
+      { note: "Bb3", duration: 1 }, { note: "D4", duration: 1 }, { note: "C4", duration: 1 }, { note: "Eb4", duration: 1 },
+      { note: "D4", duration: 1 }, { note: "F4", duration: 1 }, { note: "Eb4", duration: 1 }, { note: "G4", duration: 1 },
+      { note: "F4", duration: 1 }, { note: "A4", duration: 1 }, { note: "G4", duration: 1 }, { note: "Bb4", duration: 1.5 },
+      { note: "A4", duration: 1 }, { note: "F4", duration: 1 }, { note: "G4", duration: 1 }, { note: "Eb4", duration: 1 },
+      { note: "F4", duration: 1 }, { note: "D4", duration: 1 }, { note: "Eb4", duration: 1 }, { note: "C4", duration: 1 },
+      { note: "D4", duration: 1 }, { note: "Bb3", duration: 2 },
+    ],
+  },
+  {
+    id: "bb-arpeggio-slots",
+    title: "Bb Arpeggio Slots",
+    subtitle: "Practice drill",
+    description: "A tonic arpeggio pattern for locking in partial jumps cleanly and hearing the chord shape clearly.",
+    difficulty: "Easy",
+    color: "ember",
+    bpm: 84,
+    sequence: [
+      { note: "Bb3", duration: 1.25 }, { note: "D4", duration: 1.25 }, { note: "F4", duration: 1.25 }, { note: "Bb4", duration: 1.5 },
+      { note: "D5", duration: 1.5 }, { note: "Bb4", duration: 1.25 }, { note: "F4", duration: 1.25 }, { note: "D4", duration: 1.25 },
+      { note: "Bb3", duration: 2 },
+    ],
+  },
+  {
+    id: "clarke-cell-one",
+    title: "Clarke Cell One",
+    subtitle: "Practice drill",
+    description: "A simple technical cell that forces even fingers and stable pitch while the line keeps moving.",
+    difficulty: "Medium",
+    color: "cobalt",
+    bpm: 88,
+    sequence: [
+      { note: "Bb3", duration: 0.75 }, { note: "C4", duration: 0.75 }, { note: "D4", duration: 0.75 }, { note: "C4", duration: 0.75 },
+      { note: "C4", duration: 0.75 }, { note: "D4", duration: 0.75 }, { note: "Eb4", duration: 0.75 }, { note: "D4", duration: 0.75 },
+      { note: "D4", duration: 0.75 }, { note: "Eb4", duration: 0.75 }, { note: "F4", duration: 0.75 }, { note: "Eb4", duration: 0.75 },
+      { note: "Eb4", duration: 0.75 }, { note: "F4", duration: 0.75 }, { note: "G4", duration: 0.75 }, { note: "F4", duration: 0.75 },
+      { note: "F4", duration: 0.75 }, { note: "G4", duration: 0.75 }, { note: "A4", duration: 0.75 }, { note: "G4", duration: 0.75 },
+      { note: "G4", duration: 0.75 }, { note: "A4", duration: 0.75 }, { note: "Bb4", duration: 0.75 }, { note: "A4", duration: 0.75 },
+      { note: "Bb4", duration: 1.5 }, { note: "G4", duration: 1 }, { note: "Eb4", duration: 1 }, { note: "Bb3", duration: 2 },
+    ],
+  },
+  {
     id: "chromatic-builder",
     title: "Chromatic Builder",
     subtitle: "Valve pattern drill",
@@ -183,6 +517,7 @@ const state = {
   library: [],
   selectedLibrarySongId: null,
   selection: null,
+  practiceContext: "chart",
   tracks: [],
   selectedTrackKey: "",
   activeTrackLabel: "",
@@ -220,9 +555,31 @@ const state = {
   },
   audioContext: null,
   analyser: null,
+  micSource: null,
+  micHighpassFilter: null,
+  micLowpassFilter: null,
   micStream: null,
   micReady: false,
   timeDomainBuffer: null,
+  pitchWorkBuffer: null,
+  pitchDifferenceBuffer: null,
+  noteHitRegions: [],
+  hoveredCanvasNoteIndex: null,
+  keyMode: {
+    rootPc: NOTE_OFFSETS.Bb,
+    paletteId: "majorPentatonic",
+    stats: {
+      events: 0,
+      hits: 0,
+      misses: 0,
+      streak: 0,
+      candidateMidi: null,
+      candidateFrames: 0,
+      lastEventSignature: "",
+      lastJudgement: null,
+      lastNoteLabel: "--",
+    },
+  },
 };
 
 const canvasContext = elements.canvas.getContext("2d");
@@ -246,6 +603,194 @@ function formatClockMs(ms) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatFrequencyLabel(frequency) {
+  return Number.isFinite(frequency) ? `${frequency.toFixed(1)} Hz` : "-- Hz";
+}
+
+function mod12(value) {
+  return ((value % 12) + 12) % 12;
+}
+
+function getPitchClassName(pitchClass) {
+  return NOTE_NAMES[mod12(pitchClass)];
+}
+
+function getKeyPalette(paletteId = state.keyMode.paletteId) {
+  return KEY_PALETTES.find((palette) => palette.id === paletteId) || KEY_PALETTES[0];
+}
+
+function getKeyModeLabel({ short = false } = {}) {
+  const palette = getKeyPalette();
+  return `${getPitchClassName(state.keyMode.rootPc)} ${short ? palette.shortLabel : palette.label}`;
+}
+
+function getKeyModeAllowedPitchClasses() {
+  const palette = getKeyPalette();
+  return palette.intervals.map((interval) => mod12(state.keyMode.rootPc + interval));
+}
+
+function getKeyModeAllowedNoteNames() {
+  return getKeyModeAllowedPitchClasses().map(getPitchClassName);
+}
+
+function getKeyModeRootMidi() {
+  let midi = 60 + mod12(state.keyMode.rootPc);
+  if (midi > 70) {
+    midi -= 12;
+  }
+  if (midi < 55) {
+    midi += 12;
+  }
+  return midi;
+}
+
+function getNearestAllowedMidi(midi) {
+  if (!Number.isFinite(midi)) {
+    return null;
+  }
+
+  const allowedPitchClasses = new Set(getKeyModeAllowedPitchClasses());
+  let bestMidi = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  const roundedMidi = Math.round(midi);
+
+  for (let candidate = roundedMidi - 12; candidate <= roundedMidi + 12; candidate += 1) {
+    if (!allowedPitchClasses.has(mod12(candidate))) {
+      continue;
+    }
+
+    const distance = Math.abs(candidate - midi);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestMidi = candidate;
+    }
+  }
+
+  return bestMidi;
+}
+
+function isKeyModePitchAllowed(midi) {
+  return Number.isFinite(midi) && getKeyModeAllowedPitchClasses().includes(mod12(Math.round(midi)));
+}
+
+function resetKeyModeStats() {
+  state.keyMode.stats = {
+    events: 0,
+    hits: 0,
+    misses: 0,
+    streak: 0,
+    candidateMidi: null,
+    candidateFrames: 0,
+    lastEventSignature: "",
+    lastJudgement: null,
+    lastNoteLabel: "--",
+  };
+}
+
+function syncRenderRange() {
+  if (state.practiceContext === "key") {
+    state.renderMinMidi = KEY_RENDER_RANGE.minMidi;
+    state.renderMaxMidi = KEY_RENDER_RANGE.maxMidi;
+    return;
+  }
+
+  const noteValues = state.chart.map((note) => note.targetMidi);
+  state.renderMinMidi = noteValues.length ? Math.floor(Math.min(...noteValues)) - 1 : 55;
+  state.renderMaxMidi = noteValues.length ? Math.ceil(Math.max(...noteValues)) + 1 : 72;
+}
+
+function setPracticeContext(context, { resetKeyStats = false, statusMessage = "" } = {}) {
+  state.practiceContext = context;
+
+  if (context === "key") {
+    state.running = false;
+    state.currentSongTimeMs = 0;
+    state.stepJustReset = false;
+    state.viewMode = "lane";
+    state.selectedLibrarySongId = null;
+    if (resetKeyStats) {
+      resetKeyModeStats();
+    }
+  } else {
+    state.selectedLibrarySongId = state.selection?.kind === "library" ? state.selection.id : null;
+  }
+
+  renderLibrary();
+  syncRenderRange();
+  updateScoreboard();
+  updateSelectedSongCard();
+  updateWorkflowUI();
+  updateLiveHud();
+  drawScene(state.currentSongTimeMs);
+
+  if (statusMessage) {
+    setSessionStatus(statusMessage);
+  }
+}
+
+function getKeyModeCoachMessage() {
+  if (!state.micReady) {
+    return "Enable the microphone, then improvise inside the key.";
+  }
+
+  if (!Number.isFinite(state.pitch.midiRounded)) {
+    return `Only play ${getKeyModeAllowedNoteNames().join(" ")}.`;
+  }
+
+  const currentNote = midiToNoteName(state.pitch.midiRounded);
+  if (isKeyModePitchAllowed(state.pitch.midiRounded)) {
+    return `${currentNote} is in the key. Keep the line moving.`;
+  }
+
+  const nearestAllowedMidi = getNearestAllowedMidi(state.pitch.midiFloat ?? state.pitch.midiRounded);
+  return nearestAllowedMidi
+    ? `${currentNote} is outside. Resolve toward ${midiToNoteName(nearestAllowedMidi)}.`
+    : `${currentNote} is outside the key.`;
+}
+
+function updateKeyModeTracking() {
+  const stats = state.keyMode.stats;
+
+  if (!state.micReady || !Number.isFinite(state.pitch.midiRounded) || state.pitch.clarity < 0.24) {
+    stats.candidateMidi = null;
+    stats.candidateFrames = 0;
+    stats.lastEventSignature = "";
+    return;
+  }
+
+  if (stats.candidateMidi === state.pitch.midiRounded) {
+    stats.candidateFrames += 1;
+  } else {
+    stats.candidateMidi = state.pitch.midiRounded;
+    stats.candidateFrames = 1;
+  }
+
+  if (stats.candidateFrames < 3) {
+    return;
+  }
+
+  const signature = String(state.pitch.midiRounded);
+  if (stats.lastEventSignature === signature) {
+    return;
+  }
+
+  stats.lastEventSignature = signature;
+  stats.events += 1;
+  stats.lastNoteLabel = midiToNoteName(state.pitch.midiRounded);
+
+  if (isKeyModePitchAllowed(state.pitch.midiRounded)) {
+    stats.hits += 1;
+    stats.streak += 1;
+    stats.lastJudgement = "in";
+  } else {
+    stats.misses += 1;
+    stats.streak = 0;
+    stats.lastJudgement = "out";
+  }
+
+  updateScoreboard();
 }
 
 function midiToNoteName(midi) {
@@ -272,6 +817,27 @@ function midiToFrequency(midi) {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
+function getAudioContextCtor() {
+  return window.AudioContext || window.webkitAudioContext || null;
+}
+
+async function getSharedAudioContext() {
+  if (!state.audioContext) {
+    const AudioContextCtor = getAudioContextCtor();
+    if (!AudioContextCtor) {
+      throw new Error("Web Audio is not supported in this browser.");
+    }
+
+    state.audioContext = new AudioContextCtor();
+  }
+
+  if (state.audioContext.state === "suspended") {
+    await state.audioContext.resume();
+  }
+
+  return state.audioContext;
+}
+
 function noteNameToMidi(name) {
   const match = /^([A-G](?:#|b)?)(-?\d+)$/.exec(name);
   if (!match) {
@@ -290,6 +856,188 @@ function noteNameToMidi(name) {
 
 function frequencyToMidi(frequency) {
   return 69 + 12 * Math.log2(frequency / 440);
+}
+
+function ensurePitchBuffers(length) {
+  if (!state.pitchWorkBuffer || state.pitchWorkBuffer.length !== length) {
+    state.pitchWorkBuffer = new Float32Array(length);
+  }
+
+  if (!state.pitchDifferenceBuffer || state.pitchDifferenceBuffer.length !== length) {
+    state.pitchDifferenceBuffer = new Float32Array(length);
+  }
+}
+
+function preparePitchAnalysisBuffer(buffer) {
+  ensurePitchBuffers(buffer.length);
+
+  const workBuffer = state.pitchWorkBuffer;
+  const lastIndex = Math.max(1, buffer.length - 1);
+  let mean = 0;
+
+  for (let index = 0; index < buffer.length; index += 1) {
+    mean += buffer[index];
+  }
+  mean /= buffer.length;
+
+  let amplitudeSum = 0;
+  for (let index = 0; index < buffer.length; index += 1) {
+    const centered = buffer[index] - mean;
+    amplitudeSum += centered * centered;
+
+    const window = 0.5 - 0.5 * Math.cos((2 * Math.PI * index) / lastIndex);
+    workBuffer[index] = centered * window;
+  }
+
+  return {
+    analysisBuffer: workBuffer,
+    rms: Math.sqrt(amplitudeSum / buffer.length),
+  };
+}
+
+function interpolateBufferValue(buffer, index) {
+  const leftIndex = Math.floor(index);
+  const rightIndex = Math.min(buffer.length - 1, leftIndex + 1);
+
+  if (leftIndex === rightIndex) {
+    return buffer[leftIndex];
+  }
+
+  const fraction = index - leftIndex;
+  return buffer[leftIndex] * (1 - fraction) + buffer[rightIndex] * fraction;
+}
+
+function refineParabolicMinimum(buffer, index) {
+  const previous = buffer[index - 1] ?? buffer[index];
+  const current = buffer[index];
+  const next = buffer[index + 1] ?? buffer[index];
+  const denominator = previous + next - 2 * current;
+
+  if (Math.abs(denominator) < 1e-9) {
+    return index;
+  }
+
+  return index + (previous - next) / (2 * denominator);
+}
+
+function detectPitchYin(buffer, sampleRate) {
+  const minLag = Math.max(2, Math.floor(sampleRate / PITCH_DETECTION.maxFrequency));
+  const maxLag = Math.min(Math.floor(sampleRate / PITCH_DETECTION.minFrequency), buffer.length - 2);
+  if (maxLag <= minLag + 2) {
+    return null;
+  }
+
+  const yinBuffer = state.pitchDifferenceBuffer;
+  let runningSum = 0;
+  let bestTau = -1;
+  let bestValue = Number.POSITIVE_INFINITY;
+
+  yinBuffer[0] = 1;
+  yinBuffer[1] = 1;
+
+  for (let tau = 1; tau <= maxLag; tau += 1) {
+    let difference = 0;
+
+    for (let index = 0; index < buffer.length - tau; index += 1) {
+      const delta = buffer[index] - buffer[index + tau];
+      difference += delta * delta;
+    }
+
+    runningSum += difference;
+
+    if (tau < minLag || runningSum <= 0) {
+      yinBuffer[tau] = 1;
+      continue;
+    }
+
+    const normalizedDifference = (difference * tau) / runningSum;
+    yinBuffer[tau] = normalizedDifference;
+
+    if (normalizedDifference < bestValue) {
+      bestValue = normalizedDifference;
+      bestTau = tau;
+    }
+  }
+
+  let tauEstimate = -1;
+  for (let tau = minLag; tau <= maxLag; tau += 1) {
+    if (yinBuffer[tau] >= PITCH_DETECTION.yinThreshold) {
+      continue;
+    }
+
+    while (tau + 1 <= maxLag && yinBuffer[tau + 1] <= yinBuffer[tau]) {
+      tau += 1;
+    }
+
+    tauEstimate = tau;
+    break;
+  }
+
+  if (tauEstimate === -1) {
+    if (bestTau === -1 || bestValue > 1 - PITCH_DETECTION.periodicityFloor) {
+      return null;
+    }
+    tauEstimate = bestTau;
+  }
+
+  const refinedTau = clamp(refineParabolicMinimum(yinBuffer, tauEstimate), minLag, maxLag);
+  const yinValue = interpolateBufferValue(yinBuffer, refinedTau);
+  const periodicity = clamp(1 - yinValue, 0, 1);
+
+  if (periodicity < PITCH_DETECTION.periodicityFloor) {
+    return null;
+  }
+
+  return {
+    frequency: sampleRate / refinedTau,
+    periodicity,
+  };
+}
+
+function getPitchAnchorMidi() {
+  const referenceMidi = state.running ? getActiveWindowNote(state.currentSongTimeMs)?.targetMidi : null;
+  if (Number.isFinite(referenceMidi)) {
+    return referenceMidi;
+  }
+
+  return Number.isFinite(state.pitch.midiFloat) ? state.pitch.midiFloat : null;
+}
+
+function resolveBrassHarmonicAlias(frequency, periodicity) {
+  const anchorMidi = getPitchAnchorMidi();
+  if (!Number.isFinite(anchorMidi)) {
+    return frequency;
+  }
+
+  const candidates = [frequency, frequency / 2, frequency / 3, frequency * 2]
+    .filter((candidateFrequency, index, all) => (
+      candidateFrequency >= PITCH_DETECTION.minFrequency &&
+      candidateFrequency <= PITCH_DETECTION.maxFrequency &&
+      all.findIndex((value) => Math.abs(value - candidateFrequency) < 1e-6) === index
+    ))
+    .map((candidateFrequency) => ({
+      frequency: candidateFrequency,
+      midi: frequencyToMidi(candidateFrequency),
+    }));
+
+  const baseCandidate = candidates.find((candidate) => Math.abs(candidate.frequency - frequency) < 1e-6) || candidates[0];
+  const bestCandidate = candidates.reduce((best, candidate) => (
+    Math.abs(candidate.midi - anchorMidi) < Math.abs(best.midi - anchorMidi) ? candidate : best
+  ), baseCandidate);
+
+  const baseDistance = Math.abs(baseCandidate.midi - anchorMidi);
+  const bestDistance = Math.abs(bestCandidate.midi - anchorMidi);
+
+  if (
+    bestCandidate !== baseCandidate &&
+    bestDistance <= PITCH_DETECTION.octaveAnchorDistance &&
+    baseDistance - bestDistance >= PITCH_DETECTION.octaveImprovement &&
+    periodicity < 0.95
+  ) {
+    return bestCandidate.frequency;
+  }
+
+  return frequency;
 }
 
 function prettifyFileName(name) {
@@ -410,14 +1158,36 @@ function getChartRangeLabel() {
 }
 
 function getReferenceNote(songTimeMs = state.currentSongTimeMs) {
+  if (state.practiceContext === "key") {
+    return null;
+  }
   return state.chart.find((note) => !note.judged && note.endMs >= songTimeMs - 80) || null;
 }
 
+function getTargetPreviewNote(songTimeMs = state.currentSongTimeMs) {
+  if (state.practiceContext === "key") {
+    return {
+      targetMidi: getKeyModeRootMidi(),
+      index: -1,
+      matchedMs: 0,
+      startMs: 0,
+      endMs: 0,
+    };
+  }
+  return getReferenceNote(songTimeMs) || state.chart.find((note) => !note.judged) || state.chart[0] || null;
+}
+
 function getActiveWindowNote(songTimeMs = state.currentSongTimeMs) {
+  if (state.practiceContext === "key") {
+    return null;
+  }
   return state.chart.find((note) => songTimeMs >= note.startMs && songTimeMs <= note.endMs) || getReferenceNote(songTimeMs);
 }
 
 function getReferenceProgress(songTimeMs = state.currentSongTimeMs) {
+  if (state.practiceContext === "key") {
+    return 0;
+  }
   const referenceNote = getReferenceNote(songTimeMs);
   if (!referenceNote) {
     return 0;
@@ -432,6 +1202,35 @@ function getReferenceProgress(songTimeMs = state.currentSongTimeMs) {
 
 function getNoteFinalizeGraceMs() {
   return state.progressionMode === "step" ? 0 : 140;
+}
+
+function getBbHornFingering(concertMidi) {
+  if (!Number.isFinite(concertMidi)) {
+    return null;
+  }
+
+  const writtenMidi = Math.round(concertMidi + 2);
+  const writtenName = midiToNoteName(writtenMidi);
+  const valves = BB_HORN_FINGERINGS[writtenName] || null;
+
+  return {
+    writtenMidi,
+    writtenName,
+    valves,
+    comboLabel: valves ? (valves.length ? valves.join("-") : "Open") : "Check fingering",
+  };
+}
+
+function updateValveDisplay(valves) {
+  const valveElements = [elements.targetValve1, elements.targetValve2, elements.targetValve3];
+
+  valveElements.forEach((element, index) => {
+    const valveNumber = index + 1;
+    const isPressed = Array.isArray(valves) && valves.includes(valveNumber);
+    element.classList.toggle("is-pressed", isPressed);
+    element.classList.toggle("is-idle", Array.isArray(valves) && !isPressed);
+    element.classList.toggle("is-unknown", !Array.isArray(valves));
+  });
 }
 
 function pitchMatches(note) {
@@ -467,6 +1266,32 @@ function setupTransposeOptions() {
   elements.transposeSelect.appendChild(fragment);
 }
 
+function setupKeyModeOptions() {
+  const rootFragment = document.createDocumentFragment();
+  for (let pitchClass = 0; pitchClass < NOTE_NAMES.length; pitchClass += 1) {
+    const option = document.createElement("option");
+    option.value = String(pitchClass);
+    option.textContent = getPitchClassName(pitchClass);
+    if (pitchClass === state.keyMode.rootPc) {
+      option.selected = true;
+    }
+    rootFragment.appendChild(option);
+  }
+  elements.keyRootSelect.appendChild(rootFragment);
+
+  const paletteFragment = document.createDocumentFragment();
+  KEY_PALETTES.forEach((palette) => {
+    const option = document.createElement("option");
+    option.value = palette.id;
+    option.textContent = palette.label;
+    if (palette.id === state.keyMode.paletteId) {
+      option.selected = true;
+    }
+    paletteFragment.appendChild(option);
+  });
+  elements.keyPaletteSelect.appendChild(paletteFragment);
+}
+
 function resetPitchState() {
   state.pitch = {
     frequency: null,
@@ -499,6 +1324,16 @@ function resetScoreboard() {
 }
 
 function updateScoreboard() {
+  if (state.practiceContext === "key") {
+    const stats = state.keyMode.stats;
+    const accuracy = stats.events ? Math.round((stats.hits / stats.events) * 100) : 0;
+    elements.scoreValue.textContent = String(stats.hits);
+    elements.streakValue.textContent = `Streak ${stats.streak}`;
+    elements.accuracyValue.textContent = `${accuracy}%`;
+    elements.notesValue.textContent = `${stats.misses} out`;
+    return;
+  }
+
   const accuracy = state.score.judged ? Math.round((state.score.holdSum / state.score.judged) * 100) : 0;
   elements.scoreValue.textContent = String(state.score.points);
   elements.streakValue.textContent = `Streak ${state.score.streak}`;
@@ -507,6 +1342,13 @@ function updateScoreboard() {
 }
 
 function updateSongMeta() {
+  if (state.practiceContext === "key") {
+    const stats = state.keyMode.stats;
+    elements.songMeta.textContent = `${getKeyModeLabel()} • ${stats.hits} in key • ${stats.misses} out`;
+    elements.timeMeta.textContent = "LIVE KEY LOCK";
+    return;
+  }
+
   if (!state.chartReady) {
     elements.songMeta.textContent = "No chart loaded";
     elements.timeMeta.textContent = "00:00 / 00:00";
@@ -526,6 +1368,17 @@ function updateSongMeta() {
 }
 
 function updateSelectedSongCard() {
+  if (state.practiceContext === "key") {
+    const palette = getKeyPalette();
+    elements.selectedSongTitle.textContent = `${getPitchClassName(state.keyMode.rootPc)} ${palette.label}`;
+    elements.selectedSongDetail.textContent = "Free play key lock. Only notes from the selected palette count.";
+    elements.selectedSourceTag.textContent = "Key Lock";
+    elements.selectedDifficultyTag.textContent = "Improvisation";
+    elements.selectedRangeTag.textContent = getKeyModeAllowedNoteNames().join(" ");
+    elements.selectedDurationTag.textContent = "Live";
+    return;
+  }
+
   if (!state.selection) {
     elements.selectedSongTitle.textContent = "No chart loaded";
     elements.selectedSongDetail.textContent = "Choose a built-in scale, tune, or upload a melody MIDI to load a chart.";
@@ -562,11 +1415,16 @@ function updateSelectedSongCard() {
 }
 
 function updateWorkflowUI() {
-  const songReady = state.chartReady;
+  const keyModeActive = state.practiceContext === "key";
+  const songReady = keyModeActive || state.chartReady;
   const micReady = state.micReady;
-  const playReady = songReady && micReady;
+  const playReady = !keyModeActive && songReady && micReady;
 
-  if (!songReady) {
+  if (keyModeActive && !micReady) {
+    elements.nextActionText.textContent = "Enable the microphone, then stay inside the selected key.";
+  } else if (keyModeActive) {
+    elements.nextActionText.textContent = "Play freely. Any out-of-key note will be flagged immediately.";
+  } else if (!songReady) {
     elements.nextActionText.textContent = "Choose a built-in scale, tune, or upload a MIDI.";
   } else if (!micReady) {
     elements.nextActionText.textContent = "Enable the microphone so the horn can be tracked.";
@@ -582,16 +1440,30 @@ function updateWorkflowUI() {
     elements.nextActionText.textContent = "Enter the note as it reaches the line.";
   }
 
-  elements.trackSelectWrap.classList.toggle("is-hidden", state.tracks.length <= 1);
+  elements.trackSelectWrap.classList.toggle("is-hidden", keyModeActive || state.tracks.length <= 1);
+  elements.keyLockBlock.classList.toggle("is-hidden", !keyModeActive);
+  elements.playControlsRow.classList.toggle("is-hidden", keyModeActive);
   elements.micButton.textContent = state.micReady ? "Microphone Ready" : "Enable Microphone";
   elements.startButton.disabled = !playReady || state.running;
   elements.startButton.textContent = getStartActionLabel();
   elements.stopButton.disabled = !state.running;
+  elements.modeFlowBtn.disabled = keyModeActive;
+  elements.modeStepBtn.disabled = keyModeActive;
+  elements.transposeSelect.disabled = keyModeActive;
+  elements.viewLaneBtn.disabled = keyModeActive;
+  elements.viewStaffBtn.disabled = keyModeActive;
+  elements.keyRootSelect.disabled = !keyModeActive;
+  elements.keyPaletteSelect.disabled = !keyModeActive;
+  elements.randomKeyBtn.disabled = !keyModeActive;
+  elements.resetKeyModeBtn.disabled = !keyModeActive;
+  elements.hearTargetBtn.textContent = keyModeActive ? "Hear root" : "Hear target";
 
   setToggleSelected(elements.viewLaneBtn, state.viewMode === "lane");
   setToggleSelected(elements.viewStaffBtn, state.viewMode === "staff");
   setToggleSelected(elements.modeFlowBtn, state.progressionMode === "flow");
   setToggleSelected(elements.modeStepBtn, state.progressionMode === "step");
+  setToggleSelected(elements.sessionChartBtn, state.practiceContext === "chart");
+  setToggleSelected(elements.sessionKeyBtn, keyModeActive);
 }
 
 function getLiveCoachMessage(referenceNote) {
@@ -622,16 +1494,37 @@ function getLiveCoachMessage(referenceNote) {
 }
 
 function updateLiveHud() {
+  const keyModeActive = state.practiceContext === "key";
   const referenceNote = getReferenceNote(state.currentSongTimeMs);
+  const targetNote = getTargetPreviewNote(state.currentSongTimeMs);
+  const fingering = targetNote ? getBbHornFingering(targetNote.targetMidi) : null;
   const playerLabel = Number.isFinite(state.pitch.midiRounded) ? midiToNoteName(state.pitch.midiRounded) : "--";
   const referenceProgress = getReferenceProgress(state.currentSongTimeMs);
   const heldMs = referenceNote ? Math.round(clamp(referenceNote.matchedMs, 0, referenceNote.endMs - referenceNote.startMs)) : 0;
   const durationMs = referenceNote ? Math.round(referenceNote.endMs - referenceNote.startMs) : 0;
 
-  elements.liveTargetNote.textContent = referenceNote ? midiToNoteName(referenceNote.targetMidi) : "--";
+  elements.liveTargetNote.textContent = targetNote ? midiToNoteName(targetNote.targetMidi) : "--";
+  elements.liveTargetHz.textContent = targetNote ? formatFrequencyLabel(midiToFrequency(targetNote.targetMidi)) : "-- Hz";
+  elements.targetPitchMeta.textContent = keyModeActive
+    ? `${getKeyModeLabel()} key lock`
+    : targetNote
+      ? "Concert pitch target"
+      : "Concert pitch";
+  elements.targetFingeringLabel.textContent = fingering
+    ? (keyModeActive
+      ? `Root: Bb horn ${fingering.writtenName} • ${fingering.comboLabel}`
+      : `Bb horn: ${fingering.writtenName} • ${fingering.comboLabel}`)
+    : "Bb horn: --";
+  elements.hearTargetBtn.disabled = !targetNote;
+  updateValveDisplay(fingering?.valves ?? null);
   elements.livePlayerNote.textContent = playerLabel;
+  elements.livePlayerHz.textContent = formatFrequencyLabel(state.pitch.frequency);
 
-  if (!state.chartReady) {
+  if (keyModeActive) {
+    elements.stageTitle.textContent = `${getKeyModeLabel()} Key Lock`;
+    elements.overlayPrimary.textContent = getKeyModeCoachMessage();
+    elements.overlaySecondary.textContent = `Only play ${getKeyModeAllowedNoteNames().join(" ")}.`;
+  } else if (!state.chartReady) {
     elements.stageTitle.textContent = "Load a chart to begin";
     elements.overlayPrimary.textContent = "The bright line is the entry point.";
     elements.overlaySecondary.textContent = "Choose a built-in scale or tune, enable the mic, then begin.";
@@ -640,15 +1533,13 @@ function updateLiveHud() {
     elements.overlayPrimary.textContent = referenceNote
       ? `First target: ${midiToNoteName(referenceNote.targetMidi)}`
       : "Chart loaded";
-    elements.overlaySecondary.textContent = "Enable the microphone to show your blue note marker.";
+    elements.overlaySecondary.textContent = "Click a note or press Hear target. Enable the microphone to track your horn.";
   } else if (!state.running) {
     elements.stageTitle.textContent = `${state.selection?.title || "Chart"} ready`;
     elements.overlayPrimary.textContent = state.progressionMode === "step"
       ? "Press Start Practice. The chart will wait for each note."
       : "Press Start Run for a two-beat count-in.";
-    elements.overlaySecondary.textContent = state.viewMode === "staff"
-      ? "Switch between pitch lane and staff whenever you want."
-      : "Play concert pitch when each bar reaches the bright line.";
+    elements.overlaySecondary.textContent = "Click a note to hear it. Then match it cleanly.";
   } else if (state.currentSongTimeMs < 0) {
     elements.stageTitle.textContent = `Count-in ${Math.ceil(Math.abs(state.currentSongTimeMs) / 1000)}`;
     elements.overlayPrimary.textContent = referenceNote
@@ -685,10 +1576,7 @@ function buildChartRuntime(notes) {
 
 function updateChartTargets() {
   state.chart = buildChartRuntime(state.chartBaseNotes);
-
-  const noteValues = state.chart.map((note) => note.targetMidi);
-  state.renderMinMidi = noteValues.length ? Math.floor(Math.min(...noteValues)) - 1 : 55;
-  state.renderMaxMidi = noteValues.length ? Math.ceil(Math.max(...noteValues)) + 1 : 72;
+  syncRenderRange();
 }
 
 function loadChart(notes) {
@@ -726,6 +1614,7 @@ function loadChart(notes) {
   state.chartDurationMs = monophonic.length ? monophonic[monophonic.length - 1].endMs + 1200 : 0;
   state.currentSongTimeMs = 0;
   state.chartReady = monophonic.length > 0;
+  state.practiceContext = "chart";
   updateChartTargets();
 
   resetScoreboard();
@@ -1277,18 +2166,30 @@ async function enableMicrophone() {
       },
     });
 
-    const audioContext = new AudioContext();
-    await audioContext.resume();
-
+    const audioContext = await getSharedAudioContext();
     const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 2048;
+    analyser.fftSize = 4096;
     analyser.smoothingTimeConstant = 0;
 
     const source = audioContext.createMediaStreamSource(stream);
-    source.connect(analyser);
+    const highpass = audioContext.createBiquadFilter();
+    highpass.type = "highpass";
+    highpass.frequency.value = PITCH_DETECTION.analysisHighpassHz;
+    highpass.Q.value = 0.7;
 
-    state.audioContext = audioContext;
+    const lowpass = audioContext.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = PITCH_DETECTION.analysisLowpassHz;
+    lowpass.Q.value = 0.8;
+
+    source.connect(highpass);
+    highpass.connect(lowpass);
+    lowpass.connect(analyser);
+
     state.analyser = analyser;
+    state.micSource = source;
+    state.micHighpassFilter = highpass;
+    state.micLowpassFilter = lowpass;
     state.micStream = stream;
     state.timeDomainBuffer = new Float32Array(analyser.fftSize);
     state.micReady = true;
@@ -1318,71 +2219,31 @@ function detectPitch() {
 
   state.analyser.getFloatTimeDomainData(state.timeDomainBuffer);
   const sampleRate = state.audioContext.sampleRate;
-  const buffer = state.timeDomainBuffer;
-  let amplitudeSum = 0;
-
-  for (let index = 0; index < buffer.length; index += 1) {
-    amplitudeSum += buffer[index] * buffer[index];
-  }
-
-  const rms = Math.sqrt(amplitudeSum / buffer.length);
-  if (rms < 0.012) {
+  const { analysisBuffer, rms } = preparePitchAnalysisBuffer(state.timeDomainBuffer);
+  if (rms < PITCH_DETECTION.rmsFloor) {
     return null;
   }
 
-  const minFrequency = 140;
-  const maxFrequency = 1100;
-  const minLag = Math.floor(sampleRate / maxFrequency);
-  const maxLag = Math.floor(sampleRate / minFrequency);
-  const differences = [];
-  let bestLag = -1;
-  let bestDifference = Number.POSITIVE_INFINITY;
-  let totalDifference = 0;
-
-  for (let lag = minLag; lag <= maxLag; lag += 1) {
-    let difference = 0;
-
-    for (let index = 0; index < buffer.length - lag; index += 1) {
-      difference += Math.abs(buffer[index] - buffer[index + lag]);
-    }
-
-    difference /= buffer.length - lag;
-    differences[lag] = difference;
-    totalDifference += difference;
-
-    if (difference < bestDifference) {
-      bestDifference = difference;
-      bestLag = lag;
-    }
-  }
-
-  if (bestLag === -1) {
+  const detected = detectPitchYin(analysisBuffer, sampleRate);
+  if (!detected) {
     return null;
   }
 
-  const averageDifference = totalDifference / (maxLag - minLag + 1);
-  const clarity = clamp(1 - bestDifference / averageDifference, 0, 1);
-  if (clarity < 0.18) {
-    return null;
-  }
+  const correctedFrequency = resolveBrassHarmonicAlias(detected.frequency, detected.periodicity);
+  const correctedMidi = frequencyToMidi(correctedFrequency);
+  const previousMidi = state.pitch.midiFloat;
+  const clarity = clamp((detected.periodicity - PITCH_DETECTION.periodicityFloor) / (1 - PITCH_DETECTION.periodicityFloor), 0, 1);
 
-  const previous = differences[bestLag - 1] ?? differences[bestLag];
-  const current = differences[bestLag];
-  const next = differences[bestLag + 1] ?? differences[bestLag];
-  const denominator = previous + next - 2 * current;
-  let refinedLag = bestLag;
-
-  if (Math.abs(denominator) > 1e-6) {
-    refinedLag = bestLag + (previous - next) / (2 * denominator);
-  }
-
-  const frequency = sampleRate / refinedLag;
-  if (!Number.isFinite(frequency) || frequency < minFrequency || frequency > maxFrequency) {
+  if (
+    Number.isFinite(previousMidi) &&
+    Math.abs(correctedMidi - previousMidi) > PITCH_DETECTION.unstableJumpSemitones &&
+    clarity < PITCH_DETECTION.unstableJumpClarity
+  ) {
     return null;
   }
 
   return {
-    frequency,
+    frequency: correctedFrequency,
     clarity,
     amplitude: rms,
   };
@@ -1429,8 +2290,66 @@ function updatePitchState() {
   elements.detectedClarity.textContent = `${Math.round(state.pitch.clarity * 100)}% stable`;
 }
 
+async function playTargetPreview() {
+  const targetNote = getTargetPreviewNote(state.currentSongTimeMs);
+  if (!targetNote) {
+    setSessionStatus("Load a chart to hear a target note.");
+    return;
+  }
+
+  await playChartNotePreview(targetNote, "target");
+}
+
+async function playChartNotePreview(note, sourceLabel = "note") {
+  if (!note || !Number.isFinite(note.targetMidi)) {
+    setSessionStatus("That chart note could not be previewed.");
+    return;
+  }
+
+  try {
+    const audioContext = await getSharedAudioContext();
+    const startTime = audioContext.currentTime + 0.01;
+    const durationSeconds = 0.8;
+    const stopTime = startTime + durationSeconds;
+    const masterGain = audioContext.createGain();
+
+    masterGain.gain.setValueAtTime(0.0001, startTime);
+    masterGain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.04);
+    masterGain.gain.exponentialRampToValueAtTime(0.1, startTime + 0.16);
+    masterGain.gain.exponentialRampToValueAtTime(0.0001, stopTime);
+    masterGain.connect(audioContext.destination);
+
+    const fundamental = audioContext.createOscillator();
+    fundamental.type = "triangle";
+    fundamental.frequency.setValueAtTime(midiToFrequency(note.targetMidi), startTime);
+    fundamental.connect(masterGain);
+
+    const overtoneGain = audioContext.createGain();
+    overtoneGain.gain.value = 0.06;
+    overtoneGain.connect(masterGain);
+
+    const overtone = audioContext.createOscillator();
+    overtone.type = "sine";
+    overtone.frequency.setValueAtTime(midiToFrequency(note.targetMidi) * 2, startTime);
+    overtone.connect(overtoneGain);
+
+    fundamental.start(startTime);
+    overtone.start(startTime);
+    fundamental.stop(stopTime);
+    overtone.stop(stopTime);
+    fundamental.addEventListener("ended", () => {
+      masterGain.disconnect();
+      overtoneGain.disconnect();
+    }, { once: true });
+
+    setSessionStatus(`Previewing ${midiToNoteName(note.targetMidi)} (${sourceLabel}).`);
+  } catch (error) {
+    setSessionStatus(`Could not preview the note: ${error.message}`);
+  }
+}
+
 async function startSession() {
-  if (!state.chartReady || !state.micReady || state.running) {
+  if (state.practiceContext !== "chart" || !state.chartReady || !state.micReady || state.running) {
     return;
   }
 
@@ -1607,6 +2526,205 @@ function stopSession() {
   updateLiveHud();
   setSessionStatus("Run stopped. Adjust the chart or start again.");
   drawScene(state.currentSongTimeMs);
+}
+
+function resetCanvasHitRegions() {
+  state.noteHitRegions = [];
+}
+
+function registerCanvasNoteHitRegion(note, left, top, width, height) {
+  if (!note) {
+    return;
+  }
+
+  state.noteHitRegions.push({
+    note,
+    left,
+    top,
+    right: left + width,
+    bottom: top + height,
+  });
+}
+
+function getCanvasPoint(event) {
+  const rect = elements.canvas.getBoundingClientRect();
+  const scaleX = elements.canvas.width / rect.width;
+  const scaleY = elements.canvas.height / rect.height;
+
+  return {
+    x: (event.clientX - rect.left) * scaleX,
+    y: (event.clientY - rect.top) * scaleY,
+  };
+}
+
+function getCanvasNoteAtPoint(point) {
+  for (let index = state.noteHitRegions.length - 1; index >= 0; index -= 1) {
+    const region = state.noteHitRegions[index];
+    if (point.x >= region.left && point.x <= region.right && point.y >= region.top && point.y <= region.bottom) {
+      return region.note;
+    }
+  }
+
+  return null;
+}
+
+function updateCanvasHoverState(event) {
+  if (!(state.chartReady || state.practiceContext === "key")) {
+    state.hoveredCanvasNoteIndex = null;
+    elements.canvas.style.cursor = "default";
+    return;
+  }
+
+  const note = getCanvasNoteAtPoint(getCanvasPoint(event));
+  state.hoveredCanvasNoteIndex = note ? note.index : null;
+  elements.canvas.style.cursor = note ? "pointer" : "default";
+}
+
+function clearCanvasHoverState() {
+  state.hoveredCanvasNoteIndex = null;
+  elements.canvas.style.cursor = "default";
+}
+
+function drawPitchCompareRail(ctx, width, height, songTimeMs) {
+  const keyModeActive = state.practiceContext === "key";
+  const targetNote = getTargetPreviewNote(songTimeMs);
+  const panelX = 24;
+  const panelY = 24;
+  const panelWidth = clamp(width * 0.22, 180, 236);
+  const panelHeight = keyModeActive ? 148 : 126;
+
+  ctx.fillStyle = "rgba(5, 9, 15, 0.9)";
+  ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
+
+  ctx.strokeStyle = "rgba(248, 250, 252, 0.12)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(panelX, panelY, panelWidth, panelHeight);
+
+  ctx.fillStyle = STUDIO_COLORS.muted;
+  ctx.textAlign = "left";
+  ctx.font = '17px "SFMono-Regular", "Menlo", "Consolas", monospace';
+  ctx.fillText("PITCH COMPARE", panelX + 14, panelY + 22);
+
+  const rows = [
+    {
+      label: keyModeActive ? "Key" : "Target",
+      note: keyModeActive ? getKeyModeLabel({ short: true }) : (targetNote ? midiToNoteName(targetNote.targetMidi) : "--"),
+      hz: keyModeActive
+        ? `Root ${formatFrequencyLabel(targetNote ? midiToFrequency(targetNote.targetMidi) : null)}`
+        : (targetNote ? formatFrequencyLabel(midiToFrequency(targetNote.targetMidi)) : "-- Hz"),
+      accent: STUDIO_COLORS.gold,
+    },
+    {
+      label: "You",
+      note: Number.isFinite(state.pitch.midiRounded) ? midiToNoteName(state.pitch.midiRounded) : "--",
+      hz: formatFrequencyLabel(state.pitch.frequency),
+      accent: STUDIO_COLORS.sky,
+    },
+  ];
+
+  rows.forEach((row, index) => {
+    const rowY = panelY + 38 + index * 40;
+    ctx.fillStyle = row.accent;
+    ctx.fillRect(panelX + 14, rowY - 12, 4, 30);
+
+    ctx.fillStyle = row.accent;
+    ctx.font = '15px "SFMono-Regular", "Menlo", "Consolas", monospace';
+    ctx.fillText(row.label, panelX + 28, rowY);
+
+    ctx.fillStyle = STUDIO_COLORS.text;
+    ctx.font = '24px "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif';
+    ctx.fillText(row.note, panelX + 88, rowY + 2);
+
+    ctx.fillStyle = STUDIO_COLORS.muted;
+    ctx.font = '14px "SFMono-Regular", "Menlo", "Consolas", monospace';
+    ctx.fillText(row.hz, panelX + 88, rowY + 18);
+  });
+
+  ctx.fillStyle = "rgba(248, 250, 252, 0.72)";
+  ctx.font = '15px "SFMono-Regular", "Menlo", "Consolas", monospace';
+  ctx.fillText(
+    keyModeActive ? `Only ${getKeyModeAllowedNoteNames().join(" ")}` : "Click any note to hear it",
+    panelX + 14,
+    panelY + panelHeight - 14
+  );
+}
+
+function drawKeyLockScene(ctx, width, height) {
+  const padding = Math.max(82, width * 0.07);
+  const hitLineY = height - 122;
+  const allowedPitchClasses = new Set(getKeyModeAllowedPitchClasses());
+  const rootPitchClass = mod12(state.keyMode.rootPc);
+
+  ctx.strokeStyle = STUDIO_COLORS.gold;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = STUDIO_COLORS.goldGlow;
+  ctx.shadowBlur = 18;
+  ctx.beginPath();
+  ctx.moveTo(padding, hitLineY);
+  ctx.lineTo(width - padding, hitLineY);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = STUDIO_COLORS.gold;
+  ctx.textAlign = "left";
+  ctx.font = '18px "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif';
+  ctx.fillText("STAY IN KEY", padding, hitLineY - 14);
+
+  for (let midi = state.renderMinMidi; midi <= state.renderMaxMidi; midi += 1) {
+    if (!allowedPitchClasses.has(mod12(midi))) {
+      continue;
+    }
+
+    const x = noteToX(midi, width, padding);
+    const columnWidth = mod12(midi) === rootPitchClass ? 32 : 24;
+    const columnLeft = x - columnWidth / 2;
+
+    ctx.fillStyle = mod12(midi) === rootPitchClass ? "rgba(255, 204, 102, 0.32)" : "rgba(125, 242, 223, 0.16)";
+    ctx.fillRect(columnLeft, 42, columnWidth, hitLineY - 72);
+
+    ctx.strokeStyle = mod12(midi) === rootPitchClass ? STUDIO_COLORS.gold : "rgba(125, 242, 223, 0.6)";
+    ctx.lineWidth = 1.4;
+    ctx.strokeRect(columnLeft, 42, columnWidth, hitLineY - 72);
+
+    if (state.hoveredCanvasNoteIndex === midi) {
+      ctx.strokeStyle = STUDIO_COLORS.sky;
+      ctx.lineWidth = 2.2;
+      ctx.strokeRect(columnLeft - 3, 39, columnWidth + 6, hitLineY - 66);
+    }
+
+    ctx.fillStyle = STUDIO_COLORS.text;
+    ctx.textAlign = "center";
+    ctx.font = '16px "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif';
+    ctx.fillText(midiToNoteName(midi), x, hitLineY - 82);
+
+    registerCanvasNoteHitRegion({ targetMidi: midi, index: midi }, columnLeft, 42, columnWidth, hitLineY - 72);
+  }
+
+  if (Number.isFinite(state.pitch.midiFloat)) {
+    const hornX = noteToX(state.pitch.midiFloat, width, padding);
+    const inKey = isKeyModePitchAllowed(state.pitch.midiRounded);
+    const hornColor = inKey ? STUDIO_COLORS.sky : STUDIO_COLORS.rose;
+    const hornGlow = inKey ? STUDIO_COLORS.skyGlow : STUDIO_COLORS.roseGlow;
+
+    ctx.fillStyle = hornColor;
+    ctx.shadowBlur = 14;
+    ctx.shadowColor = hornGlow;
+    ctx.beginPath();
+    ctx.arc(hornX, hitLineY, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.strokeStyle = inKey ? "rgba(223, 244, 255, 0.9)" : "rgba(255, 211, 213, 0.9)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(hornX, hitLineY, 21, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.textAlign = "right";
+  ctx.fillStyle = STUDIO_COLORS.muted;
+  ctx.font = '22px "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif';
+  ctx.fillText(`${getKeyModeLabel()} • ${getKeyModeAllowedNoteNames().join(" ")}`, width - 28, height - 34);
 }
 
 function noteToX(midi, width, padding) {
@@ -1788,6 +2906,7 @@ function drawStaffScene(ctx, width, height, songTimeMs) {
     const y = getStaffYForMidi(note.targetMidi, bottomLineY, staffStepSpacing);
     let fill = "rgba(248, 250, 252, 0.78)";
     let glow = "";
+    const isHovered = state.hoveredCanvasNoteIndex === note.index;
 
     if (note.grade === "perfect" || note.grade === "good") {
       fill = STUDIO_COLORS.teal;
@@ -1811,6 +2930,10 @@ function drawStaffScene(ctx, width, height, songTimeMs) {
     drawNoteHead(ctx, x, y, fill, referenceNote && note.index === referenceNote.index ? "#ffffff" : "");
     ctx.restore();
 
+    if (isHovered) {
+      drawNoteHead(ctx, x, y, "rgba(0, 0, 0, 0)", "#8ac8ff");
+    }
+
     const stemUp = note.targetMidi < 71;
     ctx.strokeStyle = fill;
     ctx.lineWidth = referenceNote && note.index === referenceNote.index ? 3.2 : 2.4;
@@ -1831,6 +2954,8 @@ function drawStaffScene(ctx, width, height, songTimeMs) {
       ctx.font = '24px "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif';
       ctx.fillText(accidental, x - 24, y + 7);
     }
+
+    registerCanvasNoteHitRegion(note, x - 34, y - 58, 68, 116);
   }
 
   if (referenceNote) {
@@ -1878,12 +3003,6 @@ function drawStaffScene(ctx, width, height, songTimeMs) {
     ctx.shadowColor = STUDIO_COLORS.skyGlow;
     drawNoteHead(ctx, playerX, playerY, "#8ac8ff", "#dff4ff");
     ctx.restore();
-
-    ctx.fillStyle = "rgba(223, 244, 255, 0.95)";
-    ctx.textAlign = "center";
-    ctx.font = '20px "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif';
-    ctx.fillText("You", playerX, bottomLineY - staffLineSpacing * 5.3);
-    ctx.fillText(midiToNoteName(state.pitch.midiRounded), playerX, playerY - 26);
   }
 
   ctx.textAlign = "right";
@@ -1925,6 +3044,7 @@ function drawLaneScene(ctx, width, height, songTimeMs) {
 
     let fill = STUDIO_COLORS.goldSoft;
     let glow = "";
+    const isHovered = state.hoveredCanvasNoteIndex === note.index;
     if (note.grade === "perfect" || note.grade === "good") {
       fill = STUDIO_COLORS.teal;
       glow = STUDIO_COLORS.tealGlow;
@@ -1946,13 +3066,15 @@ function drawLaneScene(ctx, width, height, songTimeMs) {
       ctx.shadowColor = glow;
     }
     ctx.globalAlpha = note.grade === "pending" ? 0.92 : 0.84;
-    ctx.fillRect(x - (isFocus ? 24 : 20), noteTop, isFocus ? 48 : 40, rectHeight);
+    const noteWidth = isFocus ? 48 : 40;
+    const noteLeft = x - noteWidth / 2;
+    ctx.fillRect(noteLeft, noteTop, noteWidth, rectHeight);
     ctx.restore();
     ctx.globalAlpha = 1;
 
-    ctx.strokeStyle = isFocus ? STUDIO_COLORS.text : "rgba(248, 250, 252, 0.08)";
-    ctx.lineWidth = isFocus ? 2.2 : 1;
-    ctx.strokeRect(x - (isFocus ? 24 : 20), noteTop, isFocus ? 48 : 40, rectHeight);
+    ctx.strokeStyle = isHovered ? STUDIO_COLORS.sky : (isFocus ? STUDIO_COLORS.text : "rgba(248, 250, 252, 0.08)");
+    ctx.lineWidth = isHovered ? 2.4 : (isFocus ? 2.2 : 1);
+    ctx.strokeRect(noteLeft, noteTop, noteWidth, rectHeight);
 
     if (rectHeight > 24) {
       ctx.fillStyle = STUDIO_COLORS.surfaceInk;
@@ -1960,6 +3082,8 @@ function drawLaneScene(ctx, width, height, songTimeMs) {
       ctx.font = '15px "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif';
       ctx.fillText(midiToNoteName(note.targetMidi), x, noteBottom - 8);
     }
+
+    registerCanvasNoteHitRegion(note, noteLeft, noteTop, noteWidth, rectHeight);
   }
 
   if (Number.isFinite(state.pitch.midiFloat)) {
@@ -1977,18 +3101,6 @@ function drawLaneScene(ctx, width, height, songTimeMs) {
     ctx.beginPath();
     ctx.arc(hornX, hitLineY, 21, 0, Math.PI * 2);
     ctx.stroke();
-
-    ctx.fillStyle = "#ebf7ff";
-    ctx.textAlign = "center";
-    ctx.font = '20px "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif';
-    ctx.fillText(midiToNoteName(state.pitch.midiRounded), hornX, hitLineY - 30);
-  }
-
-  if (referenceNote) {
-    ctx.fillStyle = STUDIO_COLORS.text;
-    ctx.textAlign = "left";
-    ctx.font = '24px "Avenir Next Condensed", "Franklin Gothic Medium", sans-serif';
-    ctx.fillText(`Target ${midiToNoteName(referenceNote.targetMidi)}`, 28, height - 34);
   }
 
   ctx.textAlign = "right";
@@ -2000,7 +3112,14 @@ function drawLaneScene(ctx, width, height, songTimeMs) {
 function drawScene(songTimeMs) {
   const ctx = canvasContext;
   const { width, height } = elements.canvas;
-  drawBackground(ctx, width, height, { showPitchGrid: state.viewMode === "lane" });
+  resetCanvasHitRegions();
+  drawBackground(ctx, width, height, { showPitchGrid: state.practiceContext === "key" || state.viewMode === "lane" });
+
+  if (state.practiceContext === "key") {
+    drawKeyLockScene(ctx, width, height);
+    drawPitchCompareRail(ctx, width, height, songTimeMs);
+    return;
+  }
 
   if (!state.chartReady) {
     drawEmptyStage(ctx, width, height);
@@ -2013,6 +3132,7 @@ function drawScene(songTimeMs) {
     drawLaneScene(ctx, width, height, songTimeMs);
   }
 
+  drawPitchCompareRail(ctx, width, height, songTimeMs);
   drawCountInOverlay(ctx, width, height, songTimeMs);
 }
 
@@ -2022,6 +3142,10 @@ function runFrame() {
   state.lastFrameMs = now;
 
   updatePitchState();
+
+  if (state.practiceContext === "key") {
+    updateKeyModeTracking();
+  }
 
   if (state.running) {
     if (state.currentSongTimeMs < 0) {
@@ -2144,6 +3268,57 @@ function bindEvents() {
     setSessionStatus("Wait for Correct Note mode enabled.");
   });
 
+  elements.sessionChartBtn.addEventListener("click", () => {
+    if (state.practiceContext === "chart") {
+      return;
+    }
+    stopSession();
+    setPracticeContext("chart", { statusMessage: "Chart session restored." });
+  });
+
+  elements.sessionKeyBtn.addEventListener("click", () => {
+    if (state.practiceContext === "key") {
+      return;
+    }
+    stopSession();
+    setPracticeContext("key", {
+      resetKeyStats: true,
+      statusMessage: `${getKeyModeLabel()} key lock ready. Stay inside the palette.`,
+    });
+  });
+
+  elements.keyRootSelect.addEventListener("change", (event) => {
+    state.keyMode.rootPc = Number(event.target.value);
+    resetKeyModeStats();
+    setPracticeContext("key", {
+      statusMessage: `${getKeyModeLabel()} key lock ready. Stay inside the palette.`,
+    });
+  });
+
+  elements.keyPaletteSelect.addEventListener("change", (event) => {
+    state.keyMode.paletteId = event.target.value;
+    resetKeyModeStats();
+    setPracticeContext("key", {
+      statusMessage: `${getKeyModeLabel()} key lock ready. Stay inside the palette.`,
+    });
+  });
+
+  elements.randomKeyBtn.addEventListener("click", () => {
+    state.keyMode.rootPc = Math.floor(Math.random() * 12);
+    elements.keyRootSelect.value = String(state.keyMode.rootPc);
+    resetKeyModeStats();
+    setPracticeContext("key", {
+      statusMessage: `${getKeyModeLabel()} key lock ready. New key selected.`,
+    });
+  });
+
+  elements.resetKeyModeBtn.addEventListener("click", () => {
+    resetKeyModeStats();
+    updateScoreboard();
+    updateSongMeta();
+    setSessionStatus(`${getKeyModeLabel()} key lock meter reset.`);
+  });
+
   elements.transposeSelect.addEventListener("change", (event) => {
     stopSession();
     state.transpose = Number(event.target.value);
@@ -2165,6 +3340,23 @@ function bindEvents() {
     void enableMicrophone();
   });
 
+  elements.hearTargetBtn.addEventListener("click", () => {
+    void playTargetPreview();
+  });
+
+  elements.canvas.addEventListener("mousemove", updateCanvasHoverState);
+  elements.canvas.addEventListener("mouseleave", clearCanvasHoverState);
+  elements.canvas.addEventListener("click", (event) => {
+    if (!(state.chartReady || state.practiceContext === "key")) {
+      return;
+    }
+
+    const note = getCanvasNoteAtPoint(getCanvasPoint(event));
+    if (note) {
+      void playChartNotePreview(note, "chart note");
+    }
+  });
+
   elements.startButton.addEventListener("click", () => {
     void startSession();
   });
@@ -2175,7 +3367,9 @@ function bindEvents() {
 
 function init() {
   setupTransposeOptions();
+  setupKeyModeOptions();
   resetScoreboard();
+  resetKeyModeStats();
   resetPitchState();
   resetTunerDisplay();
   updateSelectedSongCard();

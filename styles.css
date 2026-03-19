@@ -647,6 +647,10 @@ select:focus-visible {
   gap: 12px;
 }
 
+.compact-two-up {
+  gap: 10px;
+}
+
 .action-stack {
   display: grid;
   gap: 12px;
@@ -659,6 +663,12 @@ select:focus-visible {
 
 .play-row button {
   flex: 1;
+}
+
+.key-lock-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .mic-panel {
@@ -731,6 +741,10 @@ select:focus-visible {
   background: #0a111a;
 }
 
+.target-card {
+  min-height: 136px;
+}
+
 .hud-card:nth-child(2) {
   border-left-color: var(--accent-sky);
 }
@@ -752,6 +766,79 @@ select:focus-visible {
   font-family: var(--font-display);
   font-size: 2rem;
   line-height: 0.9;
+}
+
+.hud-substack {
+  display: grid;
+  gap: 3px;
+  margin-top: 8px;
+}
+
+.target-tools {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: end;
+  margin-top: 12px;
+}
+
+.fingering-block {
+  display: grid;
+  gap: 8px;
+}
+
+.fingering-label {
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.valve-row {
+  display: flex;
+  gap: 8px;
+}
+
+.valve-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-strong);
+  background: #0c131d;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
+}
+
+.valve-pill.is-pressed {
+  border-color: #ffe2a6;
+  background: linear-gradient(180deg, #ffd98a 0%, var(--accent-gold) 100%);
+  color: #04070c;
+}
+
+.valve-pill.is-idle {
+  color: var(--text-primary);
+}
+
+.valve-pill.is-unknown {
+  opacity: 0.58;
+}
+
+.mini-ghost-button {
+  min-width: 108px;
+  padding: 10px 12px;
+  align-self: end;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.76rem;
+}
+
+.mini-ghost-button:disabled {
+  opacity: 0.38;
 }
 
 .canvas-frame {
@@ -864,6 +951,10 @@ select:focus-visible {
     align-items: start;
   }
 
+  .target-tools {
+    width: 100%;
+  }
+
   .panel-caption {
     max-width: none;
     text-align: left;
@@ -884,7 +975,8 @@ select:focus-visible {
   .readiness-strip,
   .hud-grid,
   .mic-metrics,
-  .two-up {
+  .two-up,
+  .key-lock-actions {
     grid-template-columns: 1fr;
   }
 
@@ -903,6 +995,11 @@ select:focus-visible {
   .canvas-overlay {
     position: static;
     margin: 12px;
+  }
+
+  .target-tools {
+    flex-direction: column;
+    align-items: start;
   }
 
   .footer-status {
